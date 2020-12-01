@@ -6,10 +6,12 @@ namespace TollFeeCalculator
     {
         static void Main()
         {
-            run(Environment.CurrentDirectory + "../../../../testData.txt");
+            string inputFilePath = "../../../../testData.txt";
+            Run(Environment.CurrentDirectory + inputFilePath);
         }
 
-        static void run(String inputFile) {
+        static void Run(string inputFile) 
+        {
             string indata = System.IO.File.ReadAllText(inputFile);
             String[] dateStrings = indata.Split(", ");
             DateTime[] dates = new DateTime[dateStrings.Length-1];
@@ -28,8 +30,10 @@ namespace TollFeeCalculator
                 if(diffInMinutes > 60) {
                     fee += TollFeePass(d2);
                     si = d2;
+                    Console.WriteLine($"fee for {d2} is {fee}" );
                 } else {
                     fee += Math.Max(TollFeePass(d2), TollFeePass(si));
+                    Console.WriteLine($"fee for (else) {d2.Hour}:{d2.Minute} is {fee}");
                 }
             }
             return Math.Max(fee, 60);
