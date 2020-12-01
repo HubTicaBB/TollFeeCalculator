@@ -21,5 +21,45 @@ namespace TollFeeCalculatorTest
 
             Assert.AreEqual(expected.Length, actual.Length);
         }
+
+        [TestMethod]        
+        public void CheckFreeDate_DayIsSaturday_ReturnTrue()
+        {
+            var saturdayDate = new DateTime(2020, 11, 28);
+
+            Assert.IsTrue(Program.CheckFreeDate(saturdayDate));
+        }
+
+        [TestMethod]
+        public void CheckFreeDate_DayIsSunday_ReturnTrue()
+        {
+            var sundayDate = new DateTime(2020, 11, 29);
+
+            Assert.IsTrue(Program.CheckFreeDate(sundayDate));
+        }
+
+        [TestMethod]
+        public void CheckFreeDate_MonthIsJuly_ReturnTrue()
+        {
+            var julyDate = new DateTime(2020, 7, 1);
+
+            Assert.IsTrue(Program.CheckFreeDate(julyDate));
+        }
+
+        [TestMethod]
+        public void CheckFreeDate_DayIsNotWeekend_ReturnFalse()
+        {
+            var nonWeekendDate = new DateTime(2020, 11, 30);
+
+            Assert.IsFalse(Program.CheckFreeDate(nonWeekendDate));
+        }
+
+        [TestMethod]
+        public void CheckFreeDate_MonthIsNotJuly_ReturnFalse()
+        {
+            var nonJulyMonth = new DateTime(2020, 01, 01);
+
+            Assert.IsFalse(Program.CheckFreeDate(nonJulyMonth));
+        }
     }
 }

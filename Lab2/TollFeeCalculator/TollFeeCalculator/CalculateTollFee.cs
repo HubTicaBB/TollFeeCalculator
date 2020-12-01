@@ -79,7 +79,7 @@ namespace TollFeeCalculator
             else return 0;
         }
         
-        static bool CheckFreeDate(DateTime date) 
+        public static bool CheckFreeDate(DateTime date) 
         {
             int saturday = 6;
             int sunday = 0;
