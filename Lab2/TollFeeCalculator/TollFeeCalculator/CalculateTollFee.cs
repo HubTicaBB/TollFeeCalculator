@@ -10,16 +10,25 @@ namespace TollFeeCalculator
             string inputFilePath = "../../../../testData.txt";
             Run(Environment.CurrentDirectory + inputFilePath);
         }
+        //Write method to check that all dates are drom the same day
 
-        static void Run(string path) 
+        static void Run(string path)
         {
             string inputData = File.ReadAllText(path);
+            DateTime[] dates = Parse(inputData);
+            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
+        }
+
+        private static DateTime[] Parse(string inputData)
+        {
             string[] datesCSV = inputData.Split(", ");
-            DateTime[] dates = new DateTime[datesCSV.Length-1]; //bugg
-            for(int i = 0; i < dates.Length; i++) {
+            DateTime[] dates = new DateTime[datesCSV.Length]; //bugg
+            for (int i = 0; i < dates.Length; i++)
+            {
                 dates[i] = DateTime.Parse(datesCSV[i]);
             }
-            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
+
+            return dates;
         }
 
         static int CalculateTotalFee(DateTime[] dates) 
@@ -68,7 +77,7 @@ namespace TollFeeCalculator
                 return 8;
             else return 0;
         }
-        //Gets free dates
+        
         static bool CheckFreeDate(DateTime date) 
         {
             int saturday = 6;
