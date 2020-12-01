@@ -1,4 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TollFeeCalculator;
+using System;
+
 
 namespace TollFeeCalculatorTests
 {
@@ -8,7 +11,8 @@ namespace TollFeeCalculatorTests
         [TestMethod]
         public void ParseTest()
         {
-            
+            string[] datesCSV = new string[] { "2020-06-30 00:05, 2020-06-30 06:34" };
+            Program p = new Program();
         }
     }
 }

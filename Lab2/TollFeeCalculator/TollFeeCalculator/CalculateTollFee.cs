@@ -3,7 +3,7 @@ using System.IO;
 
 namespace TollFeeCalculator
 {
-    class Program
+    public class Program
     {
         static void Main()
         {
@@ -19,9 +19,9 @@ namespace TollFeeCalculator
             Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
         }
 
-        private static DateTime[] Parse(string inputData)
+        public static DateTime[] Parse(string inputData)
         {
-            string[] datesCSV = inputData.Split(", ");
+            string[] datesCSV = inputData.Split(',');
             DateTime[] dates = new DateTime[datesCSV.Length]; //bugg
 
             for (int i = 0; i < dates.Length; i++)
