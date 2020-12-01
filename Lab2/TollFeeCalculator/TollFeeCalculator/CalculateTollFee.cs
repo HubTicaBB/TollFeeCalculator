@@ -23,6 +23,7 @@ namespace TollFeeCalculator
         {
             string[] datesCSV = inputData.Split(", ");
             DateTime[] dates = new DateTime[datesCSV.Length]; //bugg
+
             for (int i = 0; i < dates.Length; i++)
             {
                 dates[i] = DateTime.Parse(datesCSV[i]);
