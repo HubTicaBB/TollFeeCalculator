@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace TollFeeCalculator
 {
@@ -10,15 +11,15 @@ namespace TollFeeCalculator
             Run(Environment.CurrentDirectory + inputFilePath);
         }
 
-        static void Run(string inputFile) 
+        static void Run(string path) 
         {
-            string indata = System.IO.File.ReadAllText(inputFile);
-            String[] dateStrings = indata.Split(", ");
-            DateTime[] dates = new DateTime[dateStrings.Length-1];
+            string inputData = File.ReadAllText(path);
+            string[] datesCSV = inputData.Split(", ");
+            DateTime[] dates = new DateTime[datesCSV.Length-1];
             for(int i = 0; i < dates.Length; i++) {
-                dates[i] = DateTime.Parse(dateStrings[i]);
+                dates[i] = DateTime.Parse(datesCSV[i]);
             }
-            Console.Write("The total fee for the inputfile is" + TotalFeeCost(dates));
+            Console.Write("The total fee for the inputfile is: " + TotalFeeCost(dates));
         }
 
         static int TotalFeeCost(DateTime[] d) {
