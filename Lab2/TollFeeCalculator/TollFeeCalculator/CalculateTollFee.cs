@@ -15,29 +15,31 @@ namespace TollFeeCalculator
         {
             string inputData = File.ReadAllText(path);
             string[] datesCSV = inputData.Split(", ");
-            DateTime[] dates = new DateTime[datesCSV.Length-1];
+            DateTime[] dates = new DateTime[datesCSV.Length-1]; //bugg
             for(int i = 0; i < dates.Length; i++) {
                 dates[i] = DateTime.Parse(datesCSV[i]);
             }
             Console.Write("The total fee for the inputfile is: " + TotalFeeCost(dates));
         }
 
-        static int TotalFeeCost(DateTime[] d) {
+        static int TotalFeeCost(DateTime[] dates) 
+        {
             int fee = 0;
-            DateTime si = d[0]; //Starting interval
-            foreach (var d2 in d)
+            int multiPassageIntervalInMinutes = 60;
+            DateTime initialInvervalDate = dates[0];
+            foreach (var date in dates)
             {
-                long diffInMinutes = (d2 - si).Minutes;
-                if(diffInMinutes > 60) {
-                    fee += TollFeePass(d2);
-                    si = d2;
-                    Console.WriteLine($"fee for {d2} is {fee}" );
+                int differenceInMinutes = (date - initialInvervalDate).Minutes;
+                if(differenceInMinutes > multiPassageIntervalInMinutes) {
+                    fee += TollFeePass(date);
+                    initialInvervalDate = date;
+                    Console.WriteLine($"fee for {date} is {fee}" );
                 } else {
-                    fee += Math.Max(TollFeePass(d2), TollFeePass(si));
-                    Console.WriteLine($"fee for (else) {d2.Hour}:{d2.Minute} is {fee}");
+                    fee += Math.Max(TollFeePass(date), TollFeePass(initialInvervalDate));
+                    Console.WriteLine($"fee for (else) {date.Hour}:{date.Minute} is {fee}");
                 }
             }
-            return Math.Max(fee, 60);
+            return Math.Max(fee, 60); //bugg
         }
 
         static int TollFeePass(DateTime d)
