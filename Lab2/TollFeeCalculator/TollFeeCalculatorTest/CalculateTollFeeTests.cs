@@ -21,5 +21,21 @@ namespace TollFeeCalculatorTest
 
             Assert.AreEqual(expected.Length, actual.Length);
         }
+
+        [TestMethod]
+        public void CheckTimeOfDaySpan_WhenCalled_IsTrue()
+        {
+            var timeOfDay = new TimeSpan(7,15,0);
+            var result = Program.CheckIfTimeOfDayIsInTimespan(timeOfDay, (7,0),(7,59));
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void CheckTimeOfDaySpan_WhenCalled_IsFalse()
+        {
+            var timeOfDay = new TimeSpan(7, 15, 0);
+            var result = Program.CheckIfTimeOfDayIsInTimespan(timeOfDay, (10, 0), (10, 59));
+            Assert.IsFalse(result);
+        }
     }
 }
