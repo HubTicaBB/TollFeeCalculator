@@ -61,36 +61,28 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expectedFee, actualFee);
         }
 
-        
-
-
-        [TestMethod]
-        public void GetFeePerTimespan_Between6and6_29()
+        public static IEnumerable<object[]> GetData()
         {
-            TimeSpan timeOfDay = new TimeSpan(6, 15, 0);
-            int actualFee = Program.GetFeePerTimespan(timeOfDay);
-            int expectedFee = 8;
-            Assert.AreEqual(expectedFee, actualFee);
+            yield return new object[] { new TimeSpan(6, 0, 0), 8 };
+            yield return new object[] { new TimeSpan(6, 30, 0), 13 };
+            yield return new object[] { new TimeSpan(7, 0, 0), 18 };
+            yield return new object[] { new TimeSpan(8, 0, 0), 13 };
+            yield return new object[] { new TimeSpan(8, 30, 0), 8 };
+            yield return new object[] { new TimeSpan(15, 0, 0), 13 };
+            yield return new object[] { new TimeSpan(15, 30, 0), 18 };
+            yield return new object[] { new TimeSpan(17, 0, 0), 13 };
+            yield return new object[] { new TimeSpan(18, 0, 0), 8 };
+            yield return new object[] { new TimeSpan(18, 30, 0), 0 };
         }
 
-        [TestMethod]
-        public void GetFeePerTimespan_Between6_30and6_59()
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+        public void GetFeePerTimespan_IsInTimespan_ReturnFee(TimeSpan timeOfDay, int expectedFee)
         {
-            TimeSpan timeOfDay = new TimeSpan(6, 45, 0);
             int actualFee = Program.GetFeePerTimespan(timeOfDay);
-            int expectedFee = 13;
             Assert.AreEqual(expectedFee, actualFee);
         }
-
-      
-        [TestMethod]
-        public void GetFeePerTimespan_Between8_30and14_59()
-        {
-            TimeSpan timeOfDay = new TimeSpan(13, 15, 0);
-            int actualFee = Program.GetFeePerTimespan(timeOfDay);
-            int expectedFee = 8;
-            Assert.AreEqual(expectedFee, actualFee);
-        }
+                        
     }
         
 }
