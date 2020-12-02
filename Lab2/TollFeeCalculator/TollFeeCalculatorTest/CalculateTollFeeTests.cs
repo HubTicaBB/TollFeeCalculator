@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TollFeeCalculator;
 
 namespace TollFeeCalculatorTest
@@ -22,6 +23,28 @@ namespace TollFeeCalculatorTest
 
             Assert.AreEqual(expected.Length, actual.Length);
         }
+
+        //private static IEnumerable<object[]> GetDateObjects()
+        //{
+        //    yield return new object[]
+        //    {   
+        //         "2020-06-30 00:05, 2020-06-30 06:34"
+        //         ,
+        //        new DateTime[]
+        //        {
+        //            new DateTime(2020, 6, 30, 0, 5, 0),
+        //            new DateTime(2020, 6, 30, 6, 34, 0)
+        //        }
+        //    };
+        //}
+
+        //[TestMethod]
+        //[DynamicData(nameof(GetDateObjects), DynamicDataSourceType.Method)]
+        //public void ParseTest(string dates, DateTime[] expectedDates)
+        //{
+        //    var actualDates = Program.Parse(dates);
+        //    Assert.AreEqual(expectedDates, actualDates);
+        //}
 
         [TestMethod]
         public void CheckTimeOfDaySpan_WhenCalled_IsTrue()
@@ -61,7 +84,7 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expectedFee, actualFee);
         }
 
-        public static IEnumerable<object[]> GetData()
+        public static IEnumerable<object[]> GetTimespanObjects()
         {
             yield return new object[] { new TimeSpan(6, 0, 0), 8 };
             yield return new object[] { new TimeSpan(6, 30, 0), 13 };
@@ -76,7 +99,7 @@ namespace TollFeeCalculatorTest
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetTimespanObjects), DynamicDataSourceType.Method)]
         public void GetFeePerTimespan_IsInTimespan_ReturnFee(TimeSpan timeOfDay, int expectedFee)
         {
             int actualFee = Program.GetFeePerTimespan(timeOfDay);
@@ -95,10 +118,50 @@ namespace TollFeeCalculatorTest
         public void CheckIfTotalFeeIsBiggerThenMaxFee_IsFalse()
         {
             int maxFee = 60;
-            int totalFee = 50;
+            int totalFee = 0;
             var result = Program.CheckIfTotalFeeIsBiggerThenMaxFee(totalFee, maxFee);
             Assert.IsFalse(result);
         }
+
+
+        //public static IEnumerable<object[]> GetDateTimeObjects()
+        //{
+        //    yield return new object[]
+        //    {   new DateTime[]
+        //        {
+        //            new DateTime(2020,1,1,8,0,0),
+        //            new DateTime(2020,1,1,9,0,0),
+        //            new DateTime(2020,1,1,10,0,0)
+        //        } ,
+        //        new DateTime[]
+        //        {
+        //            new DateTime(2020,1,1,8,0,0),
+        //            new DateTime(2020,1,1,9,0,0),
+        //            new DateTime(2020,1,1,10,0,0),
+        //            new DateTime(2020,1,2,8,0,0)
+        //        }
+        //    };
+        //}
+
+        //[DataTestMethod]
+        //[DynamicData(nameof(GetDateTimeObjects), DynamicDataSourceType.Method)]
+        //public void GetDatesFromSameDay_WhenCalled_FiltersDaysFromSameDay(DateTime[] dates, DateTime[] expectedDatesFromSameDay)
+        //{
+        //    var actualDates = Program.GetDatesFromSameDay(dates);
+        //    Assert.AreEqual(expectedDatesFromSameDay, actualDates);
+        //}
+
+        [TestMethod]
+        public void GetDifferenceInMinutes_WhenCalled_ReturnsNumberOfMinutes()
+        {
+            DateTime initialDate = new DateTime(2020, 1, 1, 0, 0, 0);
+            DateTime date = new DateTime(2020, 1, 1, 1, 0, 0);
+            double actualMinutes = Program.GetDifferenceInMinutes(initialDate,date);
+            int expecteMinutes = 60;
+            Assert.AreEqual(expecteMinutes, actualMinutes);
+        }
+
+
     }
         
 }

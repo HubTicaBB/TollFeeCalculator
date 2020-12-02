@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace TollFeeCalculator
 {
@@ -16,8 +17,15 @@ namespace TollFeeCalculator
         {
             string inputData = File.ReadAllText(path); //bug System.IO
             DateTime[] dates = Parse(inputData);
+            DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
+            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(datesFromSameDay));
+        }
 
-            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
+        public static DateTime[] GetDatesFromSameDay(DateTime[] dates)
+        {
+            var initialDate = dates[0];
+            var datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).ToArray();
+            return datesFromSameDay;
         }
 
         public static DateTime[] Parse(string inputData)
@@ -43,7 +51,7 @@ namespace TollFeeCalculator
             foreach (var date in dates)
             {
                 /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
-                double differenceInMinutes = (date - initialDate).TotalMinutes;
+                double differenceInMinutes = GetDifferenceInMinutes(initialDate, date);
                 if (differenceInMinutes > multiPassageIntervalInMinutes)
                 {
                     totalFeePerDay += CalculateFeePerTimespan(date);
@@ -58,7 +66,7 @@ namespace TollFeeCalculator
                     totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
                     initialDate = date; //saknas
 
-                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); 
+                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
                     Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
                 }
             }
@@ -69,6 +77,11 @@ namespace TollFeeCalculator
             }
 
             return totalFeePerDay; //return Math.Max(fee, 60); //bugg
+        }
+
+        public static double GetDifferenceInMinutes(DateTime initialDate, DateTime date)
+        {
+            return (date - initialDate).TotalMinutes;
         }
 
         public static bool CheckIfTotalFeeIsBiggerThenMaxFee(int totalFee, int maxFee)
