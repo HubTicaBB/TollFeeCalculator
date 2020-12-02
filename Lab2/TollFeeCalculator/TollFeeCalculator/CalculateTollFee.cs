@@ -58,6 +58,10 @@ namespace TollFeeCalculator
 
             int hour = date.Hour;
             int minute = date.Minute;
+
+
+            TimeSpan timeOfDay = date.TimeOfDay;
+            CheckIfTimeOfDayIsInTimespan(timeOfDay, (6, 0), (6, 29));
             if (hour == 6 && minute >= 0 && minute <= 29) 
                 return 8;
             else if (hour == 6 && minute >= 30 && minute <= 59) 
@@ -78,7 +82,21 @@ namespace TollFeeCalculator
                 return 8;
             else return 0;
         }
-        
+
+         static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, (int hour, int minute) startTimespan, (int hour, int minute) endTimespan)
+        {
+            var startTime = new TimeSpan(startTimespan.hour, startTimespan.minute,0);
+            var endTime = new TimeSpan(endTimespan.hour, endTimespan.minute, 0);
+            if(timeOfDay>= startTime && timeOfDay<=endTime)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         static bool CheckFreeDate(DateTime date) 
         {
             int saturday = 6;
