@@ -10,7 +10,7 @@ namespace TollFeeCalculator
             string inputFilePath = "../../../../testData.txt";
             Run(Environment.CurrentDirectory + inputFilePath);
         }
-        //Write method to check that all dates are drom the same day
+        //Write method to check that all dates are from the same day
 
         static void Run(string path)
         {
@@ -60,34 +60,44 @@ namespace TollFeeCalculator
             int feePerTimespan;
 
             if (CheckFreeDate(date))
+            {
                 feePerTimespan = 0;
-                       
+            }
+            else
+            {
+                feePerTimespan = GetFeePerTimespan(timeOfDay);
+            }
+
+            return feePerTimespan;
+        }
+
+        public static int GetFeePerTimespan(TimeSpan timeOfDay)
+        {
+            int feePerTimespan;
             if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 0, 0), new TimeSpan(6, 29, 0)))
-                feePerTimespan= 8;
+                feePerTimespan = 8;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 30, 0), new TimeSpan(6, 59, 0)))
                 feePerTimespan = 13;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(7, 0, 0), new TimeSpan(7, 59, 0)))
                 feePerTimespan = 18;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 0, 0), new TimeSpan(8, 29, 0)))
                 feePerTimespan = 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0)))
-                feePerTimespan= 8;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0))) //bugg
+                feePerTimespan = 8;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 0, 0), new TimeSpan(15, 29, 0)))
-                feePerTimespan= 13;
+                feePerTimespan = 13;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 30, 0), new TimeSpan(16, 59, 0)))
-                feePerTimespan= 18;
+                feePerTimespan = 18;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(17, 0, 0), new TimeSpan(17, 59, 0)))
-                feePerTimespan= 13;
+                feePerTimespan = 13;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(18, 0, 0), new TimeSpan(18, 29, 0)))
-                feePerTimespan= 8;
+                feePerTimespan = 8;
             else
-                feePerTimespan= 0;
-
+                feePerTimespan = 0;
             return feePerTimespan;
-
         }
 
-         public static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
+        public static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
         {
             bool isTimeOfDayInTimespan = false;
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using TollFeeCalculator;
 
 namespace TollFeeCalculatorTest
@@ -50,5 +51,46 @@ namespace TollFeeCalculatorTest
             int expectedFee = 0;
             Assert.AreEqual(expectedFee,actualFee);
         }
+
+        [TestMethod]
+        public void CalculateFeePerTimespan_IsFree_IsFalse()
+        {
+            DateTime date = new DateTime(2020, 1, 1, 7, 0, 0);
+            int actualFee = Program.CalculateFeePerTimespan(date);
+            int expectedFee = 18;
+            Assert.AreEqual(expectedFee, actualFee);
+        }
+
+        
+
+
+        [TestMethod]
+        public void GetFeePerTimespan_Between6and6_29()
+        {
+            TimeSpan timeOfDay = new TimeSpan(6, 15, 0);
+            int actualFee = Program.GetFeePerTimespan(timeOfDay);
+            int expectedFee = 8;
+            Assert.AreEqual(expectedFee, actualFee);
+        }
+
+        [TestMethod]
+        public void GetFeePerTimespan_Between6_30and6_59()
+        {
+            TimeSpan timeOfDay = new TimeSpan(6, 45, 0);
+            int actualFee = Program.GetFeePerTimespan(timeOfDay);
+            int expectedFee = 13;
+            Assert.AreEqual(expectedFee, actualFee);
+        }
+
+      
+        [TestMethod]
+        public void GetFeePerTimespan_Between8_30and14_59()
+        {
+            TimeSpan timeOfDay = new TimeSpan(13, 15, 0);
+            int actualFee = Program.GetFeePerTimespan(timeOfDay);
+            int expectedFee = 8;
+            Assert.AreEqual(expectedFee, actualFee);
+        }
     }
+        
 }
