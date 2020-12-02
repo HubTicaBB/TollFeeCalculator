@@ -82,7 +82,23 @@ namespace TollFeeCalculatorTest
             int actualFee = Program.GetFeePerTimespan(timeOfDay);
             Assert.AreEqual(expectedFee, actualFee);
         }
-                        
+              
+        [TestMethod]
+        public void CheckIfTotalFeeIsBiggerThenMaxFee_IsTrue()
+        {
+            int maxFee = 60;
+            int totalFee = 70;
+            var result = Program.CheckIfTotalFeeIsBiggerThenMaxFee(totalFee,maxFee);
+            Assert.IsTrue(result);
+        }
+        [TestMethod]
+        public void CheckIfTotalFeeIsBiggerThenMaxFee_IsFalse()
+        {
+            int maxFee = 60;
+            int totalFee = 50;
+            var result = Program.CheckIfTotalFeeIsBiggerThenMaxFee(totalFee, maxFee);
+            Assert.IsFalse(result);
+        }
     }
         
 }
