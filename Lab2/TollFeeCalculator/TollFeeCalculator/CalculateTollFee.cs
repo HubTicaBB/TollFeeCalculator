@@ -59,8 +59,7 @@ namespace TollFeeCalculator
                 totalFeePerDay = maxFeePerDay;
            }
 
-            return totalFeePerDay;
-            //return Math.Max(fee, 60); //bugg
+            return totalFeePerDay; //return Math.Max(fee, 60); //bugg
         }
 
         public static bool CheckIfTotalFeeIsBiggerThenMaxFee(int totalFee, int maxFee)
