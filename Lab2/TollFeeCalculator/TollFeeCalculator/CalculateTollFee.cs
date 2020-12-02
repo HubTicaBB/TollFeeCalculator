@@ -42,58 +42,61 @@ namespace TollFeeCalculator
                 int differenceInMinutes = (date - initialInvervalDate).Minutes;
                 if(differenceInMinutes > multiPassageIntervalInMinutes) {
                     fee += CalculateFeePerTimespan(date);
+                    var temp = CalculateFeePerTimespan(date);
                     initialInvervalDate = date;
-                    Console.WriteLine($"fee for {date} is {fee}" );
+                    Console.WriteLine($"Total fee for {date} is {fee}. Fee/pass: {temp}" );
                 } else {
                     fee += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialInvervalDate));
-                    Console.WriteLine($"fee for (else) {date.Hour}:{date.Minute} is {fee}");
+                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialInvervalDate));
+                    Console.WriteLine($"Total fee for (else case) {date.Hour}:{date.Minute} is {fee}. Fee/pass:{temp2}");
                 }
             }
             return Math.Max(fee, 60); //bugg
         }
 
-        static int CalculateFeePerTimespan(DateTime date)
+        public static int CalculateFeePerTimespan(DateTime date)
         {
-            if (CheckFreeDate(date)) 
-                return 0; //bugg
-
             TimeSpan timeOfDay = date.TimeOfDay;
-           
-            if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (6, 0), (6, 29)))
-                return 8;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (6, 30), (6, 59)))
-                return 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (7, 0), (7, 59)))
-                return 18;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (8, 0), (8, 29)))
-                return 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (8, 30), (14, 59)))
-                return 8;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (15, 0), (15, 29)))
-                return 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (15, 30), (16, 59)))
-                return 18;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (17, 0), (17, 59)))
-                return 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, (18, 0), (18, 29)))
-                return 8;
-            else 
-                return 0;
+            int feePerTimespan;
+
+            if (CheckFreeDate(date))
+                feePerTimespan = 0;
+                       
+            if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 0, 0), new TimeSpan(6, 29, 0)))
+                feePerTimespan= 8;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 30, 0), new TimeSpan(6, 59, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(7, 0, 0), new TimeSpan(7, 59, 0)))
+                feePerTimespan = 18;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 0, 0), new TimeSpan(8, 29, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0)))
+                feePerTimespan= 8;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 0, 0), new TimeSpan(15, 29, 0)))
+                feePerTimespan= 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 30, 0), new TimeSpan(16, 59, 0)))
+                feePerTimespan= 18;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(17, 0, 0), new TimeSpan(17, 59, 0)))
+                feePerTimespan= 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(18, 0, 0), new TimeSpan(18, 29, 0)))
+                feePerTimespan= 8;
+            else
+                feePerTimespan= 0;
+
+            return feePerTimespan;
+
         }
 
-         public static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, (int hour, int minute) startTimespan, (int hour, int minute) endTimespan)
+         public static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
         {
-            var startTime = new TimeSpan(startTimespan.hour, startTimespan.minute,0);
-            var endTime = new TimeSpan(endTimespan.hour, endTimespan.minute, 0);
+            bool isTimeOfDayInTimespan = false;
 
-            if(timeOfDay>= startTime && timeOfDay<=endTime)
+            if(timeOfDay >= startTime && timeOfDay <= endTime)
             {
-                return true;
+                isTimeOfDayInTimespan= true;
             }
-            else
-            {
-                return false;
-            }
+
+            return isTimeOfDayInTimespan;
         }
 
         static bool CheckFreeDate(DateTime date) 
