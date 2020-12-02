@@ -16,6 +16,7 @@ namespace TollFeeCalculator
         {
             string inputData = File.ReadAllText(path); //bug System.IO
             DateTime[] dates = Parse(inputData);
+
             Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
         }
 
@@ -37,27 +38,35 @@ namespace TollFeeCalculator
             int totalFeePerDay = 0;
             int maxFeePerDay = 60; //bugg magic number
             int multiPassageIntervalInMinutes = 60; //bugg magic number
-            DateTime initialInvervalDate = dates[0];
-           
-            foreach (var date in dates)   //bugg var d2 in d wrong naming
+            DateTime initialDate = dates[0];
+                       
+            foreach (var date in dates)
             {
-                int differenceInMinutes = (date - initialInvervalDate).Minutes; //bugg 
-                if(differenceInMinutes > multiPassageIntervalInMinutes) {
-                    totalFeePerDay += CalculateFeePerTimespan(date); 
+                /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
+                double differenceInMinutes = (date - initialDate).TotalMinutes;
+                if (differenceInMinutes > multiPassageIntervalInMinutes)
+                {
+                    totalFeePerDay += CalculateFeePerTimespan(date);
+                    initialDate = date;
+
                     var temp = CalculateFeePerTimespan(date);
-                    initialInvervalDate = date;
-                    Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}" );
-                } else {
-                    totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialInvervalDate));
-                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialInvervalDate));
-                    Console.WriteLine($"Total fee for (else case) {date.Hour}:{date.Minute} is {totalFeePerDay}. Fee/pass:{temp2}");
+                    Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}");
+                }
+                else
+                {
+                    totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
+                    totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
+                    initialDate = date; //saknas
+
+                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); 
+                    Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
                 }
             }
 
-           if(CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
-           {
+            if (CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
+            { 
                 totalFeePerDay = maxFeePerDay;
-           }
+            }
 
             return totalFeePerDay; //return Math.Max(fee, 60); //bugg
         }
