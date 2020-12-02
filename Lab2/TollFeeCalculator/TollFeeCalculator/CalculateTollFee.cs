@@ -24,7 +24,8 @@ namespace TollFeeCalculator
         public static DateTime[] GetDatesFromSameDay(DateTime[] dates)
         {
             var initialDate = dates[0];
-            var datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).ToArray();
+            var datesFromSameDay = new DateTime[dates.Length];
+            datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).ToArray();
             return datesFromSameDay;
         }
 
@@ -41,11 +42,12 @@ namespace TollFeeCalculator
             return dates;
         }
 
-        static int CalculateTotalFee(DateTime[] dates) 
+        public static int CalculateTotalFee(DateTime[] dates) 
         {
             int totalFeePerDay = 0;
             int maxFeePerDay = 60; //bugg magic number
             int multiPassageIntervalInMinutes = 60; //bugg magic number
+
             DateTime initialDate = dates[0];
                        
             foreach (var date in dates)
@@ -64,7 +66,7 @@ namespace TollFeeCalculator
                 {
                     totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
                     totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
-                    initialDate = date; //saknas
+                    initialDate = date; //saknades
 
                     var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
                     Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
@@ -86,12 +88,7 @@ namespace TollFeeCalculator
 
         public static bool CheckIfTotalFeeIsBiggerThenMaxFee(int totalFee, int maxFee)
         {
-            bool isTotalFeeBigerThenMaxFee = false;
-            if(totalFee > maxFee)
-            {
-                isTotalFeeBigerThenMaxFee = true;
-            }
-            return isTotalFeeBigerThenMaxFee;
+            return totalFee > maxFee;
         }
 
         public static int CalculateFeePerTimespan(DateTime date)

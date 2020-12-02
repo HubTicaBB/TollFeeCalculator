@@ -27,7 +27,7 @@ namespace TollFeeCalculatorTest
         //private static IEnumerable<object[]> GetDateObjects()
         //{
         //    yield return new object[]
-        //    {   
+        //    {
         //         "2020-06-30 00:05, 2020-06-30 06:34"
         //         ,
         //        new DateTime[]
@@ -67,7 +67,7 @@ namespace TollFeeCalculatorTest
         }
 
         [TestMethod]
-        public void CalculateFeePerTimespan_IsFree_IsTrue()
+        public void CalculateFeePerTimespan_IsFree_ReturnFeeIs0()
         {
             DateTime date = new DateTime(2020,7,1,0,0,0);
             int actualFee = Program.CalculateFeePerTimespan(date);
@@ -76,7 +76,7 @@ namespace TollFeeCalculatorTest
         }
 
         [TestMethod]
-        public void CalculateFeePerTimespan_IsFree_IsFalse()
+        public void CalculateFeePerTimespan_IsNotFree_ReturnFee18()
         {
             DateTime date = new DateTime(2020, 1, 1, 7, 0, 0);
             int actualFee = Program.CalculateFeePerTimespan(date);
@@ -137,8 +137,7 @@ namespace TollFeeCalculatorTest
         //        {
         //            new DateTime(2020,1,1,8,0,0),
         //            new DateTime(2020,1,1,9,0,0),
-        //            new DateTime(2020,1,1,10,0,0),
-        //            new DateTime(2020,1,2,8,0,0)
+        //            new DateTime(2020,1,1,10,0,0)
         //        }
         //    };
         //}
@@ -161,6 +160,36 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expecteMinutes, actualMinutes);
         }
 
+        public static IEnumerable<object[]> GetDatesAndFee()
+        {
+            yield return new object[] 
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 6, 30, 0, 5, 0),
+                    new DateTime(2020, 6, 30, 6, 34, 0)
+                }
+                , 13 
+            };
+            yield return new object[]
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 6, 30, 8, 0, 0),
+                    new DateTime(2020, 6, 30, 8, 30, 0)
+                }
+                , 13
+            };
+
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetDatesAndFee), DynamicDataSourceType.Method)]
+        public void CalculateTotalFee_ReturnFee(DateTime[] dates, int expectedFee)
+        {
+            int actualFee = Program.CalculateTotalFee(dates);
+            Assert.AreEqual(expectedFee, actualFee);
+        }
 
     }
         
