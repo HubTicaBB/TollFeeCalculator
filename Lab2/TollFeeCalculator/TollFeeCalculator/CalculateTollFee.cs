@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace TollFeeCalculator
 {
@@ -10,13 +11,22 @@ namespace TollFeeCalculator
             string inputFilePath = "../../../../testData.txt";
             Run(Environment.CurrentDirectory + inputFilePath);
         }
-        //Write method to check that all dates are drom the same day
+        //Write method to check that all dates are from the same day
 
         static void Run(string path)
         {
-            string inputData = File.ReadAllText(path);
+            string inputData = File.ReadAllText(path); //bug System.IO
             DateTime[] dates = Parse(inputData);
-            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(dates));
+            DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
+            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(datesFromSameDay));
+        }
+
+        public static DateTime[] GetDatesFromSameDay(DateTime[] dates)
+        {
+            var initialDate = dates[0];
+            var datesFromSameDay = new DateTime[dates.Length];
+            datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).ToArray();
+            return datesFromSameDay;
         }
 
         public static DateTime[] Parse(string inputData)
@@ -32,59 +42,114 @@ namespace TollFeeCalculator
             return dates;
         }
 
-        static int CalculateTotalFee(DateTime[] dates) 
+        public static int CalculateTotalFee(DateTime[] dates) 
         {
-            int fee = 0;
-            int multiPassageIntervalInMinutes = 60;
-            DateTime initialInvervalDate = dates[0];
+            int totalFeePerDay = 0;
+            int maxFeePerDay = 60; //bugg magic number
+            int multiPassageIntervalInMinutes = 60; //bugg magic number
+
+            DateTime initialDate = dates[0];
+                       
             foreach (var date in dates)
             {
-                int differenceInMinutes = (date - initialInvervalDate).Minutes;
-                if(differenceInMinutes > multiPassageIntervalInMinutes) {
-                    fee += CalculateFeePerTimespan(date);
-                    initialInvervalDate = date;
-                    Console.WriteLine($"fee for {date} is {fee}" );
-                } else {
-                    fee += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialInvervalDate));
-                    Console.WriteLine($"fee for (else) {date.Hour}:{date.Minute} is {fee}");
+                /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
+                double differenceInMinutes = GetDifferenceInMinutes(initialDate, date);
+                if (differenceInMinutes > multiPassageIntervalInMinutes)
+                {
+                    totalFeePerDay += CalculateFeePerTimespan(date);
+                    initialDate = date;
+
+                    var temp = CalculateFeePerTimespan(date);
+                    Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}");
+                }
+                else
+                {
+                    totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
+                    totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
+                    initialDate = date; //saknades
+
+                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
+                    Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
                 }
             }
-            return Math.Max(fee, 60); //bugg
+
+            if (CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
+            { 
+                totalFeePerDay = maxFeePerDay;
+            }
+
+            return totalFeePerDay; //return Math.Max(fee, 60); //bugg
         }
 
-        static int CalculateFeePerTimespan(DateTime date)
+        public static double GetDifferenceInMinutes(DateTime initialDate, DateTime date)
         {
-            if (CheckFreeDate(date)) return 0; //bugg
-
-            int hour = date.Hour;
-            int minute = date.Minute;
-            if (hour == 6 && minute >= 0 && minute <= 29) 
-                return 8;
-            else if (hour == 6 && minute >= 30 && minute <= 59) 
-                return 13;
-            else if (hour == 7 && minute >= 0 && minute <= 59) 
-                return 18;
-            else if (hour == 8 && minute >= 0 && minute <= 29) 
-                return 13;
-            else if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) 
-                return 8;
-            else if (hour == 15 && minute >= 0 && minute <= 29) 
-                return 13;
-            else if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) 
-                return 18; //bugg
-            else if (hour == 17 && minute >= 0 && minute <= 59) 
-                return 13;
-            else if (hour == 18 && minute >= 0 && minute <= 29) 
-                return 8;
-            else return 0;
+            return (date - initialDate).TotalMinutes;
         }
-        
-        public static bool CheckFreeDate(DateTime date) 
+
+        public static bool CheckIfTotalFeeIsBiggerThenMaxFee(int totalFee, int maxFee)
         {
-            int saturday = 6;
-            int sunday = 0;
+            return totalFee > maxFee;
+        }
+
+        public static int CalculateFeePerTimespan(DateTime date)
+        {
+            TimeSpan timeOfDay = date.TimeOfDay;
+            int feePerTimespan;
+
+            if (CheckFreeDate(date))
+            {
+                feePerTimespan = 0;
+            }
+            else
+            {
+                feePerTimespan = GetFeePerTimespan(timeOfDay);
+            }
+
+            return feePerTimespan;
+        }
+
+        public static int GetFeePerTimespan(TimeSpan timeOfDay)
+        {
+            int feePerTimespan;
+            if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 0, 0), new TimeSpan(6, 29, 0)))
+                feePerTimespan = 8;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(6, 30, 0), new TimeSpan(6, 59, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(7, 0, 0), new TimeSpan(7, 59, 0)))
+                feePerTimespan = 18;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 0, 0), new TimeSpan(8, 29, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0))) //bugg
+                feePerTimespan = 8;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 0, 0), new TimeSpan(15, 29, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 30, 0), new TimeSpan(16, 59, 0)))
+                feePerTimespan = 18;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(17, 0, 0), new TimeSpan(17, 59, 0)))
+                feePerTimespan = 13;
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(18, 0, 0), new TimeSpan(18, 29, 0)))
+                feePerTimespan = 8;
+            else
+                feePerTimespan = 0;
+            return feePerTimespan;
+        }
+
+        public static bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
+        {
+            bool isTimeOfDayInTimespan = false;
+
+            if(timeOfDay >= startTime && timeOfDay <= endTime)
+            {
+                isTimeOfDayInTimespan= true;
+            }
+
+            return isTimeOfDayInTimespan;
+        }
+
+        static bool CheckFreeDate(DateTime date) 
+        {
             int july = 7;
-            return (int)date.DayOfWeek == saturday || (int)date.DayOfWeek == sunday || date.Month == july; //bugg 
+            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.Month == july; //bugg friday , saturday instead of staurday sunday
         }
     }
 }
