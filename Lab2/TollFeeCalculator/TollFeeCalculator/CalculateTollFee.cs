@@ -66,7 +66,7 @@ namespace TollFeeCalculator
                 }
                 else
                 {
-                    intervalTotalFee = RecalculateIntervalFee(intervalTotalFee, intervalHighestFee, currentPassageFee); //7.bug wrong fee calculation 
+                    intervalTotalFee = RecalculateIntervalFee(intervalTotalFee, intervalHighestFee, currentPassageFee); //7.bug wrong fee calculation, compare with starting interval only 
                     intervalHighestFee = GetHigher(intervalHighestFee, currentPassageFee);                    
                 }
             }
@@ -83,7 +83,8 @@ namespace TollFeeCalculator
             return isIntervalOver || isFirstPassage;
         }
 
-        public int RecalculateIntervalFee(int totalIntervalFee, int highestFee, int currentFee)
+       
+        private int RecalculateIntervalFee(int totalIntervalFee, int highestFee, int currentFee)
         {
             var recalculatedIntervalFee = totalIntervalFee;
             if (currentFee > highestFee)
@@ -93,12 +94,12 @@ namespace TollFeeCalculator
             return recalculatedIntervalFee;
         }
 
-        public  int GetHigher(int intervalHighestFee, int currentPassageFee)
+        private int GetHigher(int intervalHighestFee, int currentPassageFee)
         {
             return Math.Max(intervalHighestFee, currentPassageFee);
         }
 
-        public int CalculateFeePerTimespan(DateTime date)
+        private int CalculateFeePerTimespan(DateTime date)
         {
             TimeSpan timeOfDay = date.TimeOfDay;
             int feePerTimespan;
@@ -132,7 +133,7 @@ namespace TollFeeCalculator
             return feePerTimespan;
         }
 
-        public bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
+        private bool CheckIfTimeOfDayIsInTimespan(TimeSpan timeOfDay, TimeSpan startTime, TimeSpan endTime)
         {
             bool isTimeOfDayInTimespan = false;
             if(timeOfDay >= startTime && timeOfDay <= endTime)
@@ -142,7 +143,7 @@ namespace TollFeeCalculator
             return isTimeOfDayInTimespan;
         }
 
-        private bool CheckFreeDates(DateTime date) 
+        public bool CheckFreeDates(DateTime date) 
         {
             int july = 7;
             return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.Month == july; //10.bug wrong int values for Saturday and Sunday
