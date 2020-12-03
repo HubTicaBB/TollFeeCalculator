@@ -15,11 +15,24 @@ namespace TollFeeCalculator
 
         static void Run(string path)
         {
-            string inputData = File.ReadAllText(path); //bug System.IO
+            var program = new Program();
+            string inputData = program.ReadFileData(new FileReader(), path); //bug System.IO
             DateTime[] dates = Parse(inputData);
             DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
             int totalDailyFee = CalculateTotalFee(datesFromSameDay);
             Console.Write("The total fee for the inputfile is: " + TotalToPay(totalDailyFee));
+        }
+
+        public string ReadFileData(IFileReader fileReader, string path)
+        {
+            try
+            {
+                return fileReader.Read(path);
+            }
+            catch (FileNotFoundException)
+            {
+                throw new FileNotFoundException();
+            }
         }
 
         public static DateTime[] GetDatesFromSameDay(DateTime[] dates)

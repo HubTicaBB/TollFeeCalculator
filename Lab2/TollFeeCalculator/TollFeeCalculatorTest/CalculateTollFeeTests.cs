@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TollFeeCalculator;
 
@@ -285,6 +286,25 @@ namespace TollFeeCalculatorTest
             var actualHigher = Program.GetHigher(previous, current);
 
             Assert.AreEqual(current, actualHigher);
+        }
+
+        [TestMethod]
+        public void ReadFileData_InvalidPath_ThrowsFileNotFoundException()
+        {
+            var program = new Program();
+
+            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(new MockFileReader(), "invalidPath"));
+        }
+
+        [TestMethod]
+        public void ReadFileData_ValidPath_ReturnsFileData()
+        {
+            var program = new Program();
+            var expectedFileData = "File Data";
+
+            var actualFileData = program.ReadFileData(new MockFileReader(), "anyValidPath");
+
+            Assert.AreEqual(expectedFileData, actualFileData);
         }
     }        
 }
