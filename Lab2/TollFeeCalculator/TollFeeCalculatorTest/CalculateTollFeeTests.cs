@@ -178,6 +178,34 @@ namespace TollFeeCalculatorTest
                 }
                 , 8
             };
+            yield return new object[]
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 7, 1, 10, 13, 0),
+                    new DateTime(2020, 7, 1, 10, 25, 0),
+                    new DateTime(2020, 7, 1, 11, 04, 0),
+                }
+                , 0
+            };
+            yield return new object[]
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 12, 5, 10, 13, 0),
+                    new DateTime(2020, 12, 5, 10, 25, 0)
+                }
+                , 0
+            };
+            yield return new object[]
+           {
+                new DateTime[]
+                {
+                    new DateTime(2020, 12, 6, 10, 13, 0),
+                    new DateTime(2020, 12, 6, 10, 25, 0)
+                }
+                , 0
+           };
         }
 
         [DataTestMethod]
