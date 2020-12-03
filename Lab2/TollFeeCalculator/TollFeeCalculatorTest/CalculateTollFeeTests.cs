@@ -24,27 +24,27 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expected.Length, actual.Length);
         }
 
-        //private static IEnumerable<object[]> GetDateObjects()
-        //{
-        //    yield return new object[]
-        //    {
-        //         "2020-06-30 00:05, 2020-06-30 06:34"
-        //         ,
-        //        new DateTime[]
-        //        {
-        //            new DateTime(2020, 6, 30, 0, 5, 0),
-        //            new DateTime(2020, 6, 30, 6, 34, 0)
-        //        }
-        //    };
-        //}
+        private static IEnumerable<object[]> GetDateObjects()
+        {
+            yield return new object[]
+            {
+                 "2020-06-30 00:05, 2020-06-30 06:34"
+                 ,
+                new DateTime[]
+                {
+                    new DateTime(2020, 6, 30, 0, 5, 0),
+                    new DateTime(2020, 6, 30, 6, 34, 0)
+                }
+            };
+        }
 
-        //[TestMethod]
-        //[DynamicData(nameof(GetDateObjects), DynamicDataSourceType.Method)]
-        //public void ParseTest(string dates, DateTime[] expectedDates)
-        //{
-        //    var actualDates = Program.Parse(dates);
-        //    Assert.AreEqual(expectedDates, actualDates);
-        //}
+        [TestMethod]
+        [DynamicData(nameof(GetDateObjects), DynamicDataSourceType.Method)]
+        public void ParseTest(string dates, DateTime[] expectedDates)
+        {
+            var actualDates = Program.Parse(dates);
+            CollectionAssert.AreEqual(expectedDates, actualDates);
+        }
 
         [TestMethod]
         public void CheckTimeOfDaySpan_WhenCalled_IsTrue()
@@ -124,40 +124,32 @@ namespace TollFeeCalculatorTest
         }
 
 
-        //public static IEnumerable<object[]> GetDateTimeObjects()
-        //{
-        //    yield return new object[]
-        //    {   new DateTime[]
-        //        {
-        //            new DateTime(2020,1,1,8,0,0),
-        //            new DateTime(2020,1,1,9,0,0),
-        //            new DateTime(2020,1,1,10,0,0)
-        //        } ,
-        //        new DateTime[]
-        //        {
-        //            new DateTime(2020,1,1,8,0,0),
-        //            new DateTime(2020,1,1,9,0,0),
-        //            new DateTime(2020,1,1,10,0,0)
-        //        }
-        //    };
-        //}
-
-        //[DataTestMethod]
-        //[DynamicData(nameof(GetDateTimeObjects), DynamicDataSourceType.Method)]
-        //public void GetDatesFromSameDay_WhenCalled_FiltersDaysFromSameDay(DateTime[] dates, DateTime[] expectedDatesFromSameDay)
-        //{
-        //    var actualDates = Program.GetDatesFromSameDay(dates);
-        //    Assert.AreEqual(expectedDatesFromSameDay, actualDates);
-        //}
-
-        [TestMethod]
-        public void GetDifferenceInMinutes_WhenCalled_ReturnsNumberOfMinutes()
+        public static IEnumerable<object[]> GetDateTimeObjects()
         {
-            DateTime initialDate = new DateTime(2020, 1, 1, 0, 0, 0);
-            DateTime date = new DateTime(2020, 1, 1, 1, 0, 0);
-            double actualMinutes = Program.GetDifferenceInMinutes(initialDate,date);
-            int expecteMinutes = 60;
-            Assert.AreEqual(expecteMinutes, actualMinutes);
+            yield return new object[]
+            {   new DateTime[]
+                {
+                    new DateTime(2020,1,1,8,0,0),
+                    new DateTime(2020,1,1,9,0,0),
+                    new DateTime(2020,1,1,10,0,0),
+                    new DateTime(2020,1,2,10,0,0)
+                } ,
+                new DateTime[]
+                {
+                    new DateTime(2020,1,1,8,0,0),
+                    new DateTime(2020,1,1,9,0,0),
+                    new DateTime(2020,1,1,10,0,0)
+                }
+            };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetDateTimeObjects), DynamicDataSourceType.Method)]
+        public void GetDatesFromSameDay_WhenCalled_FiltersDaysFromSameDay(DateTime[] dates, DateTime[] expectedDatesFromSameDay)
+        {
+            var actualDates = Program.GetDatesFromSameDay(dates);
+
+            CollectionAssert.AreEquivalent(actualDates, expectedDatesFromSameDay);
         }
 
         public static IEnumerable<object[]> GetDatesAndFee()
@@ -180,7 +172,24 @@ namespace TollFeeCalculatorTest
                 }
                 , 13
             };
-
+            yield return new object[]
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 6, 30, 8, 0, 0),
+                }
+                , 13
+            };
+            yield return new object[]
+            {
+                new DateTime[]
+                {
+                    new DateTime(2020, 6, 30, 10, 13, 0),
+                    new DateTime(2020, 6, 30, 10, 25, 0),
+                    new DateTime(2020, 6, 30, 11, 04, 0),                    
+                }
+                , 8
+            };
         }
 
         [DataTestMethod]
@@ -191,6 +200,93 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expectedFee, actualFee);
         }
 
+        [TestMethod]
+        public void TotalToPay_TotalIsGreaterThanMax_ReturnsSixty()
+        {
+            var expected = 60;
+            var actual = Program.TotalToPay(61);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TotalToPay_TotalIsLessThanMax_ReturnsTotal()
+        {
+            var expected = 59;
+            var actual = Program.TotalToPay(59);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void CheckInterval_SameInterval_ReturnsFalse()
+        {
+            var intervalStartTime = new DateTime(2020, 1, 1, 6, 0, 0);
+            var currentPassageTime = new DateTime(2020, 1, 1, 7, 0, 0);
+
+            var newInterval = Program.IsNewInterval(intervalStartTime, currentPassageTime);
+
+            Assert.IsFalse(newInterval);
+        }
+
+        [TestMethod]
+        public void CheckInterval_NewInterval_ReturnsTrue()
+        {
+            var intervalStartTime = new DateTime(2020, 1, 1, 6, 0, 0);
+            var currentPassageTime = new DateTime(2020, 1, 1, 7, 1, 0);
+
+            var newInterval = Program.IsNewInterval(intervalStartTime, currentPassageTime);
+            
+            Assert.IsTrue(newInterval);
+        }
+
+        [TestMethod]
+        public void RecalculateFee_CurrentFeeIsHigherThanPrevious_ReturnsNewTotal()
+        {
+            var oldtotal = 10;
+            var previous = 1;
+            var current = 2;
+            var expectedNewTotal = 11;
+
+            var actualTotal = Program.RecalculateIntervalFee(oldtotal, previous, current);
+
+            Assert.AreEqual(expectedNewTotal, actualTotal);
+        }
+
+        [TestMethod]
+        public void RecalculateFee_CurrentFeeIsNotHigherThanPrevious_ReturnsOldTotal()
+        {
+            var oldtotal = 10;
+            var previous = 1;
+            var current = 1;
+
+            var actualTotal = Program.RecalculateIntervalFee(oldtotal, previous, current);
+
+            Assert.AreEqual(oldtotal, actualTotal);
+        }
+
+        [TestMethod]
+        public void GetHigher_PreviousIsHigher_ReturnsPrevious()
+        {
+            var previous = 2;
+            var current = 1;
+
+            var actualHigher = Program.GetHigher(previous, current);
+
+            Assert.AreEqual(previous, actualHigher);
+        }
+
+        [TestMethod]
+        public void GetHigher_CurrentIsHigher_ReturnsHigher()
+        {
+            var previous = 1;
+            var current = 2;
+
+            var actualHigher = Program.GetHigher(previous, current);
+
+            Assert.AreEqual(current, actualHigher);
+        }
+    }        
         public static IEnumerable<object[]> GetFreeDates()
         {
             yield return new object[] { new DateTime(2020, 7, 1)};
