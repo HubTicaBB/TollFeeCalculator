@@ -146,7 +146,7 @@ namespace TollFeeCalculator
             return isTimeOfDayInTimespan;
         }
 
-        static bool CheckFreeDate(DateTime date) 
+        public static bool CheckFreeDate(DateTime date) 
         {
             int july = 7;
             return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.Month == july; //bugg friday , saturday instead of staurday sunday

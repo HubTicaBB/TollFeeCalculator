@@ -191,6 +191,21 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expectedFee, actualFee);
         }
 
+        public static IEnumerable<object[]> GetFreeDates()
+        {
+            yield return new object[] { new DateTime(2020, 7, 1)};
+            yield return new object[] { new DateTime(2020, 12, 5)};
+            yield return new object[] { new DateTime(2020, 12, 6)};
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetFreeDates), DynamicDataSourceType.Method)]
+        public void CheckFreeDate_ReturnsTrue(DateTime date)
+        {
+            bool result = Program.CheckFreeDate(date);
+            Assert.IsTrue(result);
+        }
+
     }
         
 }
