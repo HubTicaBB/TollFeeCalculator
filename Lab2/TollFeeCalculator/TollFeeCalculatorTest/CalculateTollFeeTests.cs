@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -292,19 +293,22 @@ namespace TollFeeCalculatorTest
         public void ReadFileData_InvalidPath_ThrowsFileNotFoundException()
         {
             var program = new Program();
+            var fileReader = new Mock<IFileReader>();
+            fileReader.Setup(f => f.Read(It.IsAny<string>())).Throws<FileNotFoundException>();
 
-            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(new MockFileReader(), "invalidPath"));
+            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(fileReader.Object, "invalidPath"));
         }
 
         [TestMethod]
         public void ReadFileData_ValidPath_ReturnsFileData()
         {
             var program = new Program();
-            var expectedFileData = "File Data";
+            var fileReader = new Mock<IFileReader>();
+            fileReader.Setup(f => f.Read(It.IsAny<string>())).Returns("File Data");
 
-            var actualFileData = program.ReadFileData(new MockFileReader(), "anyValidPath");
+            var actualFileData = program.ReadFileData(fileReader.Object, "anyValidPath");
 
-            Assert.AreEqual(expectedFileData, actualFileData);
+            Assert.AreEqual("File Data", actualFileData);
         }
     }        
 }
