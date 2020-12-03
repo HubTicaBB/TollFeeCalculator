@@ -18,7 +18,8 @@ namespace TollFeeCalculator
             string inputData = File.ReadAllText(path); //bug System.IO
             DateTime[] dates = Parse(inputData);
             DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
-            Console.Write("The total fee for the inputfile is: " + CalculateTotalFee(datesFromSameDay));
+            int totalDailyFee = CalculateTotalFee(datesFromSameDay);
+            Console.Write("The total fee for the inputfile is: " + TotalToPay(totalDailyFee));
         }
 
         public static DateTime[] GetDatesFromSameDay(DateTime[] dates)
@@ -42,43 +43,109 @@ namespace TollFeeCalculator
             return dates;
         }
 
-        public static int CalculateTotalFee(DateTime[] dates) 
-        {
-            int totalFeePerDay = 0;
-            int maxFeePerDay = 60; //bugg magic number
-            int multiPassageIntervalInMinutes = 60; //bugg magic number
+        //public static int CalculateTotalFee(DateTime[] dates) 
+        //{
+        //    int totalFeePerDay = 0;
+        //    int maxFeePerDay = 60; //bugg magic number
+        //    int multiPassageIntervalInMinutes = 60; //bugg magic number
 
-            DateTime initialDate = dates[0];
-                       
+        //    DateTime initialDate = dates[0];
+
+        //    foreach (var date in dates)
+        //    {
+        //        /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
+        //        double differenceInMinutes = GetDifferenceInMinutes(initialDate, date);
+        //        if (differenceInMinutes > multiPassageIntervalInMinutes)
+        //        {
+        //            totalFeePerDay += CalculateFeePerTimespan(date);
+        //            initialDate = date;
+
+        //            var temp = CalculateFeePerTimespan(date);
+        //            Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}");
+        //        }
+        //        else
+        //        {
+        //            totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
+        //            totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
+        //            initialDate = date; //saknades
+
+        //            var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
+        //            Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
+        //        }
+        //    }
+
+        //    if (CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
+        //    { 
+        //        totalFeePerDay = maxFeePerDay;
+        //    }
+
+        //    return totalFeePerDay; //return Math.Max(fee, 60); //bugg
+        //}
+
+        public static int TotalToPay(int calculatedDailyFee)
+        {
+            const int maxDailyFee = 60;
+            return Math.Min(calculatedDailyFee, maxDailyFee);
+        }
+
+        public static int CalculateTotalFee(DateTime[] dates)
+        {
+            int totalDailyFee = 0;            
+            
+            DateTime intervalStart = dates[0];
+            int intervalTotalFee = 0;
+            int intervalHighestFee = 0;
+
             foreach (var date in dates)
             {
-                /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
-                double differenceInMinutes = GetDifferenceInMinutes(initialDate, date);
-                if (differenceInMinutes > multiPassageIntervalInMinutes)
-                {
-                    totalFeePerDay += CalculateFeePerTimespan(date);
-                    initialDate = date;
+                var currentPassageFee = CalculateFeePerTimespan(date);
 
-                    var temp = CalculateFeePerTimespan(date);
-                    Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}");
+                bool isNewInterval = CheckInterval(intervalStart, date);
+                if (isNewInterval)
+                {
+                    totalDailyFee += intervalTotalFee;
+                    intervalStart = date;              
+                    intervalHighestFee = currentPassageFee;
+                    intervalTotalFee = currentPassageFee;
                 }
                 else
                 {
-                    totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
-                    totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
-                    initialDate = date; //saknades
-
-                    var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
-                    Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
+                    intervalTotalFee = RecalculateFee(intervalTotalFee, intervalHighestFee, currentPassageFee);
+                    intervalHighestFee = GetHigher(intervalHighestFee, currentPassageFee);                    
                 }
             }
 
-            if (CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
-            { 
-                totalFeePerDay = maxFeePerDay;
+            if (dates.Length <= 2)
+            {
+                totalDailyFee += intervalTotalFee;
             }
+            return totalDailyFee;
+        }
 
-            return totalFeePerDay; //return Math.Max(fee, 60); //bugg
+        public static bool CheckInterval(DateTime intervalStartTime, DateTime currentPassageTime)
+        {
+            const int multiPassageIntervalMinutes = 60;
+            var intervalIsOver = (currentPassageTime - intervalStartTime).TotalMinutes > multiPassageIntervalMinutes;
+            var firstPassage = intervalStartTime == currentPassageTime;
+
+            return  intervalIsOver || firstPassage;
+        }
+
+        public static int RecalculateFee(int total, int previous, int current)
+        {
+            if (current > previous)
+            {
+                return total - previous + current;
+            }
+            else
+            {
+                return total;
+            }
+        }
+
+        public static int GetHigher(int intervalHighestFee, int currentPassageFee)
+        {
+            return Math.Max(intervalHighestFee, currentPassageFee);
         }
 
         public static double GetDifferenceInMinutes(DateTime initialDate, DateTime date)

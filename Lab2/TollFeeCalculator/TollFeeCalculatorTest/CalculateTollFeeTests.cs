@@ -191,6 +191,91 @@ namespace TollFeeCalculatorTest
             Assert.AreEqual(expectedFee, actualFee);
         }
 
-    }
-        
+        [TestMethod]
+        public void TotalToPay_TotalIsGreaterThanMax_ReturnsSixty()
+        {
+            var expected = 60;
+            var actual = Program.TotalToPay(61);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TotalToPay_TotalIsLessThanMax_ReturnsTotal()
+        {
+            var expected = 59;
+            var actual = Program.TotalToPay(59);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void CheckInterval_SameInterval_ReturnsFalse()
+        {
+            var intervalStartTime = new DateTime(2020, 1, 1, 6, 0, 0);
+            var currentPassageTime = new DateTime(2020, 1, 1, 7, 0, 0);
+
+            var newInterval = Program.CheckInterval(intervalStartTime, currentPassageTime);
+
+            Assert.IsFalse(newInterval);
+        }
+
+        [TestMethod]
+        public void CheckInterval_NewInterval_ReturnsTrue()
+        {
+            var intervalStartTime = new DateTime(2020, 1, 1, 6, 0, 0);
+            var currentPassageTime = new DateTime(2020, 1, 1, 7, 1, 0);
+
+            var newInterval = Program.CheckInterval(intervalStartTime, currentPassageTime);
+            
+            Assert.IsTrue(newInterval);
+        }
+
+        [TestMethod]
+        public void RecalculateFee_CurrentFeeIsHigherThanPrevious_ReturnsNewTotal()
+        {
+            var oldtotal = 10;
+            var previous = 1;
+            var current = 2;
+            var expectedNewTotal = 11;
+
+            var actualTotal = Program.RecalculateFee(oldtotal, previous, current);
+
+            Assert.AreEqual(expectedNewTotal, actualTotal);
+        }
+
+        [TestMethod]
+        public void RecalculateFee_CurrentFeeIsNotHigherThanPrevious_ReturnsOldTotal()
+        {
+            var oldtotal = 10;
+            var previous = 1;
+            var current = 1;
+
+            var actualTotal = Program.RecalculateFee(oldtotal, previous, current);
+
+            Assert.AreEqual(oldtotal, actualTotal);
+        }
+
+        [TestMethod]
+        public void GetHigher_PreviousIsHigher_ReturnsPrevious()
+        {
+            var previous = 2;
+            var current = 1;
+
+            var actualHigher = Program.GetHigher(previous, current);
+
+            Assert.AreEqual(previous, actualHigher);
+        }
+
+        [TestMethod]
+        public void GetHigher_CurrentIsHigher_ReturnsHigher()
+        {
+            var previous = 1;
+            var current = 2;
+
+            var actualHigher = Program.GetHigher(previous, current);
+
+            Assert.AreEqual(current, actualHigher);
+        }
+    }        
 }
