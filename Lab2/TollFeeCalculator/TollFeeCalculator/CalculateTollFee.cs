@@ -26,7 +26,7 @@ namespace TollFeeCalculator
         {
             var initialDate = dates[0];
             var datesFromSameDay = new DateTime[dates.Length];
-            datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).ToArray();
+            datesFromSameDay = dates.Where(d => d.Date == initialDate.Date).OrderBy(d => d.Date).ToArray();
             return datesFromSameDay;
         }
 
@@ -43,45 +43,6 @@ namespace TollFeeCalculator
             return dates;
         }
 
-        //public static int CalculateTotalFee(DateTime[] dates) 
-        //{
-        //    int totalFeePerDay = 0;
-        //    int maxFeePerDay = 60; //bugg magic number
-        //    int multiPassageIntervalInMinutes = 60; //bugg magic number
-
-        //    DateTime initialDate = dates[0];
-
-        //    foreach (var date in dates)
-        //    {
-        //        /*int differenceInMinutes = (date - initialInvervalDate).Minutes;*/ //bugg 
-        //        double differenceInMinutes = GetDifferenceInMinutes(initialDate, date);
-        //        if (differenceInMinutes > multiPassageIntervalInMinutes)
-        //        {
-        //            totalFeePerDay += CalculateFeePerTimespan(date);
-        //            initialDate = date;
-
-        //            var temp = CalculateFeePerTimespan(date);
-        //            Console.WriteLine($"Total fee for {date} is {totalFeePerDay}. Fee/pass: {temp}");
-        //        }
-        //        else
-        //        {
-        //            totalFeePerDay -= CalculateFeePerTimespan(initialDate); // remove previous fee
-        //            totalFeePerDay += Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate)); //bugg
-        //            initialDate = date; //saknades
-
-        //            var temp2 = Math.Max(CalculateFeePerTimespan(date), CalculateFeePerTimespan(initialDate));
-        //            Console.WriteLine($"Total fee for (else case) {date} is {totalFeePerDay}. Fee/pass:{temp2}");
-        //        }
-        //    }
-
-        //    if (CheckIfTotalFeeIsBiggerThenMaxFee(totalFeePerDay,maxFeePerDay))
-        //    { 
-        //        totalFeePerDay = maxFeePerDay;
-        //    }
-
-        //    return totalFeePerDay; //return Math.Max(fee, 60); //bugg
-        //}
-
         public static int TotalToPay(int calculatedDailyFee)
         {
             const int maxDailyFee = 60;
@@ -90,18 +51,14 @@ namespace TollFeeCalculator
 
         public static int CalculateTotalFee(DateTime[] dates)
         {
-            int totalDailyFee = 0;            
-            
+            int totalDailyFee = 0;
             DateTime intervalStart = dates[0];
             int intervalTotalFee = 0;
             int intervalHighestFee = 0;
-
             foreach (var date in dates)
             {
                 var currentPassageFee = CalculateFeePerTimespan(date);
-
-                bool isNewInterval = CheckInterval(intervalStart, date);
-                if (isNewInterval)
+                if (IsNewInterval(intervalStart, date))
                 {
                     totalDailyFee += intervalTotalFee;
                     intervalStart = date;              
@@ -110,47 +67,37 @@ namespace TollFeeCalculator
                 }
                 else
                 {
-                    intervalTotalFee = RecalculateFee(intervalTotalFee, intervalHighestFee, currentPassageFee);
+                    intervalTotalFee = RecalculateIntervalFee(intervalTotalFee, intervalHighestFee, currentPassageFee);
                     intervalHighestFee = GetHigher(intervalHighestFee, currentPassageFee);                    
                 }
             }
-
-            if (dates.Length <= 2)
-            {
-                totalDailyFee += intervalTotalFee;
-            }
+            totalDailyFee += intervalTotalFee;
             return totalDailyFee;
         }
 
-        public static bool CheckInterval(DateTime intervalStartTime, DateTime currentPassageTime)
+        public static bool IsNewInterval(DateTime intervalStartTime, DateTime currentPassageTime)
         {
             const int multiPassageIntervalMinutes = 60;
-            var intervalIsOver = (currentPassageTime - intervalStartTime).TotalMinutes > multiPassageIntervalMinutes;
-            var firstPassage = intervalStartTime == currentPassageTime;
+            var isIntervalOver = (currentPassageTime - intervalStartTime).TotalMinutes > multiPassageIntervalMinutes;
+            var isFirstPassage = intervalStartTime == currentPassageTime;
 
-            return  intervalIsOver || firstPassage;
+            return isIntervalOver || isFirstPassage;
         }
 
-        public static int RecalculateFee(int total, int previous, int current)
+        public static int RecalculateIntervalFee(int totalIntervalFee, int highestFee, int currentFee)
         {
-            if (current > previous)
+            var recalculatedIntervalFee = totalIntervalFee;
+            if (currentFee > highestFee)
             {
-                return total - previous + current;
+                recalculatedIntervalFee = totalIntervalFee - highestFee + currentFee;
             }
-            else
-            {
-                return total;
-            }
+
+            return recalculatedIntervalFee;
         }
 
         public static int GetHigher(int intervalHighestFee, int currentPassageFee)
         {
             return Math.Max(intervalHighestFee, currentPassageFee);
-        }
-
-        public static double GetDifferenceInMinutes(DateTime initialDate, DateTime date)
-        {
-            return (date - initialDate).TotalMinutes;
         }
 
         public static bool CheckIfTotalFeeIsBiggerThenMaxFee(int totalFee, int maxFee)
@@ -163,14 +110,16 @@ namespace TollFeeCalculator
             TimeSpan timeOfDay = date.TimeOfDay;
             int feePerTimespan;
 
-            if (CheckFreeDate(date))
-            {
-                feePerTimespan = 0;
-            }
-            else
-            {
-                feePerTimespan = GetFeePerTimespan(timeOfDay);
-            }
+            //if (CheckFreeDate(date))
+            //{
+            //    feePerTimespan = 0;
+            //}
+            //else
+            //{
+            //    feePerTimespan = GetFeePerTimespan(timeOfDay);
+            //}
+
+            feePerTimespan = (CheckFreeDate(date)) ? 0 : GetFeePerTimespan(timeOfDay);
 
             return feePerTimespan;
         }
