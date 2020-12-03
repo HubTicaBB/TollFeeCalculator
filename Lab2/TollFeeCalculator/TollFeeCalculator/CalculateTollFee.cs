@@ -6,6 +6,13 @@ namespace TollFeeCalculator
 {
     public class Program
     {
+        private readonly IFileReader _fileReader;
+
+        public Program(IFileReader fileReader = null)
+        {
+            _fileReader = fileReader ?? null;
+        }
+
         static void Main()
         {
             string inputFilePath = "../../../../testData.txt";
@@ -16,18 +23,18 @@ namespace TollFeeCalculator
         static void Run(string path)
         {
             var program = new Program();
-            string inputData = program.ReadFileData(new FileReader(), path); //bug System.IO
+            string inputData = program.ReadFileData(path); //bug System.IO
             DateTime[] dates = Parse(inputData);
             DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
             int totalDailyFee = CalculateTotalFee(datesFromSameDay);
             Console.Write("The total fee for the inputfile is: " + TotalToPay(totalDailyFee));
         }
 
-        public string ReadFileData(IFileReader fileReader, string path)
+        public string ReadFileData(string path)
         {
             try
             {
-                return fileReader.Read(path);
+                return _fileReader.Read(path);
             }
             catch (FileNotFoundException)
             {

@@ -291,22 +291,22 @@ namespace TollFeeCalculatorTest
 
         [TestMethod]
         public void ReadFileData_InvalidPath_ThrowsFileNotFoundException()
-        {
-            var program = new Program();
+        {            
             var fileReader = new Mock<IFileReader>();
+            var program = new Program(fileReader.Object);
             fileReader.Setup(f => f.Read(It.IsAny<string>())).Throws<FileNotFoundException>();
 
-            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(fileReader.Object, "invalidPath"));
+            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData("invalidPath"));
         }
 
         [TestMethod]
         public void ReadFileData_ValidPath_ReturnsFileData()
-        {
-            var program = new Program();
+        {            
             var fileReader = new Mock<IFileReader>();
+            var program = new Program(fileReader.Object);
             fileReader.Setup(f => f.Read(It.IsAny<string>())).Returns("File Data");
 
-            var actualFileData = program.ReadFileData(fileReader.Object, "anyValidPath");
+            var actualFileData = program.ReadFileData("anyValidPath");
 
             Assert.AreEqual("File Data", actualFileData);
         }
