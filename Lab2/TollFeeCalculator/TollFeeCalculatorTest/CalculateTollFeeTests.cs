@@ -296,7 +296,6 @@ namespace TollFeeCalculatorTest
             var program = new Program();
             var invalidPath = Environment.CurrentDirectory + "testData.txt";
             fileReader.Setup(f => f.Read(invalidPath)).Throws<FileNotFoundException>();
-            //fileReader.Setup(f => f.Read(It.IsAny<string>())).Throws<FileNotFoundException>();
 
             Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(fileReader.Object, invalidPath));
         }
@@ -308,12 +307,11 @@ namespace TollFeeCalculatorTest
             var fileReader = new Mock<IFileReader>();
             var validPath = Environment.CurrentDirectory + "../../../testData.txt";
 
-            var exceptedFileData = "2020-06-30 00:05, 2020-06-30 06:34, 2020-06-30 08:52";
-            fileReader.Setup(f => f.Read(validPath)).Returns(exceptedFileData);
-            //fileReader.Setup(f => f.Read(It.IsAny<string>())).Returns(exceptedFileData);
+            var expectedFileData = "2020-06-30 00:05, 2020-06-30 06:34, 2020-06-30 08:52";
+            fileReader.Setup(f => f.Read(validPath)).Returns(expectedFileData);
             var actualFileData = program.ReadFileData(fileReader.Object, validPath);
             
-            Assert.AreEqual(exceptedFileData, actualFileData);
+            Assert.AreEqual(expectedFileData, actualFileData);
         }
     }        
 }
