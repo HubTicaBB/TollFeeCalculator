@@ -35,7 +35,7 @@ namespace TollFeeCalculator
             }
         }
 
-        public static DateTime[] GetDatesFromSameDay(DateTime[] dates)
+        public DateTime[] GetDatesFromSameDay(DateTime[] dates)
         {
             var initialDate = dates[0];
             var datesFromSameDay = new DateTime[dates.Length];
