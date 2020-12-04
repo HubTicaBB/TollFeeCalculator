@@ -165,6 +165,15 @@ namespace TollFeeCalculatorTest
                 }
                 , 13
            };
+            yield return new object[]
+            {   new DateTime[]
+                {
+                    new DateTime(2020, 7, 1),
+                    new DateTime(2020, 12, 5),
+                    new DateTime(2020, 12, 6)
+                }
+                , 0
+            };
         }
 
         [DataTestMethod]
@@ -259,6 +268,27 @@ namespace TollFeeCalculatorTest
             var actualFileData = program.ReadFileData(fileReader.Object, validPath);
             
             Assert.AreEqual(expectedFileData, actualFileData);
+        }
+
+        [TestMethod]
+        public void ConvertStringToDateTime_InvalidData_ThrowsFormatException()
+        {
+            var program = new Program();
+            var invalidData = "error 2020-June-01";
+
+            Assert.ThrowsException<FormatException>(() => program.ConvertStringToDateTime(invalidData));
+        }
+
+        [TestMethod]
+        public void ConvertStringToDateTime_ValidData_ReturnsDateTime()
+        {
+            var program = new Program();
+            var validData = "2020-01-01 00:00";
+
+            var actual = program.ConvertStringToDateTime(validData);
+            var expected = new DateTime(2020, 1, 1, 0, 0, 0);
+
+            Assert.AreEqual(expected, actual);
         }
     }        
 }

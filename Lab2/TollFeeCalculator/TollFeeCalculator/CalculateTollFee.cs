@@ -5,24 +5,25 @@ using System.Linq;
 namespace TollFeeCalculator
 {
     public class Program
-    {
+    {        
         public static void Main()
         {
             Program program = new Program();
-            string inputFilePath = "../../../../testData.txt"; //1.bug if path file is incorrect
+            string inputFilePath = "../../../../testData.txt"; 
             program.Run(Environment.CurrentDirectory + inputFilePath);
         }
       
         public void Run(string path)
         {
             var program = new Program();
-            string inputData = program.ReadFileData(new FileReader(), path); //bug System.IO
+            string inputData = program.ReadFileData(new FileReader(), path);
             DateTime[] dates = Parse(inputData);
             DateTime[] datesFromSameDay = GetDatesFromSameDay(dates);
             int totalDailyFee = CalculateTotalFee(datesFromSameDay);
             Console.Write("The total fee for the inputfile is: " + TotalToPay(totalDailyFee));
         }
 
+        // 1. Bug if path is invalid
         public string ReadFileData(IFileReader fileReader, string path)
         {
             try
@@ -35,6 +36,7 @@ namespace TollFeeCalculator
             }
         }
 
+        // 2. Bug if file contains different days
         public DateTime[] GetDatesFromSameDay(DateTime[] dates)
         {
             var initialDate = dates[0];
@@ -45,22 +47,36 @@ namespace TollFeeCalculator
 
         public DateTime[] Parse(string inputData)
         {
-            string[] datesCSV = inputData.Split(','); //3.bug empty space after comma
-            DateTime[] dates = new DateTime[datesCSV.Length]; //4.bug wrong array length
+            string[] datesCSV = inputData.Split(','); //3. Bug empty space after comma
+            DateTime[] dates = new DateTime[datesCSV.Length]; //4. Bug wrong array length
             for (int i = 0; i < dates.Length; i++)
             {
-                dates[i] = DateTime.Parse(datesCSV[i]);
+                dates[i] = ConvertStringToDateTime(datesCSV[i]);
             }
             return dates;
         }
 
-        public int TotalToPay(int calculatedDailyFee) //5.bug min not max
+        // 5. Bug when date string has invalid format
+        public DateTime ConvertStringToDateTime(string date)
+        {
+            try
+            {
+                return DateTime.Parse(date);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException();
+            }
+        }
+
+        // 6. Bug min not max
+        public int TotalToPay(int calculatedDailyFee) 
         {
             const int maxDailyFee = 60;
             return Math.Min(calculatedDailyFee, maxDailyFee);
         }
 
-        public int CalculateTotalFee(DateTime[] dates) //6.bug static method
+        public int CalculateTotalFee(DateTime[] dates) 
         {
             int totalDailyFee = 0;
             DateTime intervalStart = dates[0];
@@ -76,9 +92,9 @@ namespace TollFeeCalculator
                     intervalHighestFee = currentPassageFee;
                     intervalTotalFee = currentPassageFee;
                 }
-                else
+                else //7. Bug wrong fee calculation, compare with starting interval only
                 {
-                    intervalTotalFee = RecalculateIntervalFee(intervalTotalFee, intervalHighestFee, currentPassageFee); //7.bug wrong fee calculation, compare with starting interval only 
+                    intervalTotalFee = RecalculateIntervalFee(intervalTotalFee, intervalHighestFee, currentPassageFee);  
                     intervalHighestFee = GetHigher(intervalHighestFee, currentPassageFee);                    
                 }
             }
@@ -89,7 +105,7 @@ namespace TollFeeCalculator
         public bool IsNewInterval(DateTime intervalStartTime, DateTime currentPassageTime)
         {
             const int multiPassageIntervalMinutes = 60;
-            var isIntervalOver = (currentPassageTime - intervalStartTime).TotalMinutes > multiPassageIntervalMinutes; //8.bug TotalMinutes method not Minutes
+            var isIntervalOver = (currentPassageTime - intervalStartTime).TotalMinutes > multiPassageIntervalMinutes; //8. Bug TotalMinutes method not Minutes
             var isFirstPassage = intervalStartTime == currentPassageTime;
 
             return isIntervalOver || isFirstPassage;
@@ -130,7 +146,7 @@ namespace TollFeeCalculator
                 feePerTimespan = 18;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 0, 0), new TimeSpan(8, 29, 0)))
                 feePerTimespan = 13;
-            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0))) //9.bug wrong value for minutes 0-29 for hours 8-14
+            else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(8, 30, 0), new TimeSpan(14, 59, 0))) //9. Bug wrong value for minutes 0-29 for hours 8-14
                 feePerTimespan = 8;
             else if (CheckIfTimeOfDayIsInTimespan(timeOfDay, new TimeSpan(15, 0, 0), new TimeSpan(15, 29, 0)))
                 feePerTimespan = 13;
@@ -155,10 +171,12 @@ namespace TollFeeCalculator
             return isTimeOfDayInTimespan;
         }
 
+        // 10. Bug Friday was free 
+        // 11. Bug Sunday was not free
         public bool CheckFreeDates(DateTime date) 
         {
             int july = 7;
-            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.Month == july; //10.bug wrong int values for Saturday and Sunday
+            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.Month == july; 
         }
     }
 }
