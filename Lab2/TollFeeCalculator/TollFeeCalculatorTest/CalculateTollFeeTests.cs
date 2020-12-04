@@ -293,22 +293,27 @@ namespace TollFeeCalculatorTest
         public void ReadFileData_InvalidPath_ThrowsFileNotFoundException()
         {            
             var fileReader = new Mock<IFileReader>();
-            var program = new Program(fileReader.Object);
-            fileReader.Setup(f => f.Read(It.IsAny<string>())).Throws<FileNotFoundException>();
+            var program = new Program();
+            var invalidPath = Environment.CurrentDirectory + "testData.txt";
+            fileReader.Setup(f => f.Read(invalidPath)).Throws<FileNotFoundException>();
+            //fileReader.Setup(f => f.Read(It.IsAny<string>())).Throws<FileNotFoundException>();
 
-            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData("invalidPath"));
+            Assert.ThrowsException<FileNotFoundException>(() => program.ReadFileData(fileReader.Object, invalidPath));
         }
 
         [TestMethod]
         public void ReadFileData_ValidPath_ReturnsFileData()
-        {            
+        {
+            var program = new Program();
             var fileReader = new Mock<IFileReader>();
-            var program = new Program(fileReader.Object);
-            fileReader.Setup(f => f.Read(It.IsAny<string>())).Returns("File Data");
+            var validPath = Environment.CurrentDirectory + "../../../testData.txt";
 
-            var actualFileData = program.ReadFileData("anyValidPath");
-
-            Assert.AreEqual("File Data", actualFileData);
+            var exceptedFileData = "2020-06-30 00:05, 2020-06-30 06:34, 2020-06-30 08:52";
+            fileReader.Setup(f => f.Read(validPath)).Returns(exceptedFileData);
+            //fileReader.Setup(f => f.Read(It.IsAny<string>())).Returns(exceptedFileData);
+            var actualFileData = program.ReadFileData(fileReader.Object, validPath);
+            
+            Assert.AreEqual(exceptedFileData, actualFileData);
         }
     }        
 }
